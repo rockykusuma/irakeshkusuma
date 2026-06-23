@@ -783,7 +783,7 @@
             setTimeout(step, L.t.length > 40 ? 26 : 46);
           } else {
             li++;
-            if (L.trigger) triggerFigure(() => setTimeout(typeNext, 500));
+            if (L.trigger) { triggerFigure(); setTimeout(typeNext, 1000); }
             else setTimeout(typeNext, L.t ? 320 : 120);
           }
         })();
@@ -904,15 +904,11 @@
       const layers = figure.querySelectorAll('.lay');
       const INTRO = ['fal_out/shot_a.mp4', 'fal_out/shot_b.mp4'];
       const LOOP = 'fal_out/shot_c.mp4';
-      let cur = 0, step = 0, onDocked = null;
+      let cur = 0, step = 0;
 
       document.body.classList.add('split');
 
-      function resume() {
-        if (onDocked) { const f = onDocked; onDocked = null; f(); }
-      }
-
-      function playClip(src, loop, isFinal) {
+      function playClip(src, loop) {
         const prev = layers[cur], nx = layers[cur ^ 1];
         nx.loop = !!loop;
         nx.muted = true;
@@ -929,7 +925,6 @@
           if (prev) prev.classList.remove('on');
           cur ^= 1;
           if (!loop) nx.onended = advance;   // advance once this intro clip ends
-          if (isFinal) resume();             // hand control back to the terminal
         };
         nx.addEventListener('canplaythrough', go, { once: true });
         nx.addEventListener('loadeddata', go, { once: true });
@@ -939,18 +934,16 @@
 
       function advance() {
         step++;
-        if (step < INTRO.length) playClip(INTRO[step], false, false);
-        else playClip(LOOP, true, true);
+        if (step < INTRO.length) playClip(INTRO[step], false);
+        else playClip(LOOP, true);
       }
 
-      function triggerFigure(done) {
-        onDocked = done;
+      function triggerFigure() {
         figure.classList.add('show');
         document.body.classList.add('dim');
-        setTimeout(resume, 14000);            // safety: never leave the terminal stuck
-        if (reduce) { playClip(LOOP, true, true); return; }
+        if (reduce) { playClip(LOOP, true); return; }
         step = 0;
-        playClip(INTRO[0], false, false);
+        playClip(INTRO[0], false);
       }
 
       /* ===== Decrypt text reveal ===== */

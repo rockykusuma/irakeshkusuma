@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rakesh@matrix:~ — iOS &amp; BLE engineer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #00060a;
+      --g: #00FF41;
+      --dim: #1f8a3a;
+      --dimmer: #13632a;
+      --bright: #b6ffc6;
+      --glow: 0 0 6px rgba(0, 255, 65, .45);
+      --ag: 0, 255, 65;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--g);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      line-height: 1.65;
+      text-shadow: var(--glow);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      transition: background .4s, color .4s;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: rgba(0, 255, 65, .3); }
+
+    /* ===== Fixed FX layers ===== */
+    #rain {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: .24;
+      pointer-events: none;
+      transition: opacity 1.1s ease;
+    }
+
+    body.dim #rain { opacity: .1; }
+
+    #scan {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg,
+        rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, .16) 3px);
+    }
+
+    #scan::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(120% 80% at 50% 0%, transparent 60%, rgba(0, 0, 0, .5));
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 22px;
+    }
+
+    /* ===== Nav ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(3px);
+      background: rgba(0, 6, 10, .82);
+      border-bottom: 1px solid var(--dimmer);
+    }
+
+    .nav-in {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 12px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-in .id { font-size: 13px; color: var(--g); }
+    .nav-in .id b { color: var(--bright); }
+
+    .links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .links a { font-size: 12.5px; color: var(--dim); transition: .15s; }
+    .links a:hover { color: var(--g); text-shadow: var(--glow); }
+    .links a::before { content: "./"; }
+
+    /* ===== Hero ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      padding: 80px 0 48px;
+      position: relative;
+    }
+
+    .hero > .wrap { width: 100%; }
+
+    .term {
+      max-width: 430px;
+      margin: 0 auto;
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid rgba(0, 255, 65, .18);
+      border-radius: 12px;
+      background: rgba(0, 14, 18, .55);
+      backdrop-filter: blur(12px) saturate(130%);
+      -webkit-backdrop-filter: blur(12px) saturate(130%);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .55), inset 0 0 50px rgba(0, 255, 65, .05);
+      transition: max-width .85s cubic-bezier(.16, .84, .34, 1);
+    }
+
+    @media (max-width: 560px) {
+      .term { max-width: 100%; }
+    }
+
+    .scrollhint {
+      align-self: center;
+      margin-top: 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-shadow: var(--glow);
+      opacity: .85;
+    }
+
+    .scrollhint:hover { color: var(--g); }
+    .scrollhint .chev { font-size: 16px; animation: bob 1.6s ease-in-out infinite; }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); opacity: .5; }
+      50% { transform: translateY(5px); opacity: 1; }
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--dimmer);
+      font-size: 11.5px;
+      color: var(--dim);
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .bar .t { margin-left: 8px; }
+
+    .body {
+      padding: 22px 20px;
+      font-size: 14px;
+      min-height: 140px;
+      max-height: 58vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      transition: min-height .85s cubic-bezier(.16, .84, .34, 1);
+    }
+
+    .body::-webkit-scrollbar { width: 8px; }
+    .body::-webkit-scrollbar-thumb { background: var(--dimmer); border-radius: 4px; }
+    .body::-webkit-scrollbar-track { background: transparent; }
+
+    .out div { white-space: pre-wrap; word-break: break-word; }
+    .ln-ok { color: var(--bright); }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 17px;
+      background: var(--g);
+      box-shadow: 0 0 8px var(--g);
+      vertical-align: -3px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ===== interactive console ===== */
+    .pfx { color: var(--dimmer); white-space: pre; }
+    .pfx b { color: var(--g); }
+    .cli-line { display: flex; align-items: baseline; }
+    #cli {
+      flex: 1 1 60px;
+      min-width: 60px;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      color: var(--bright);
+      font: inherit;
+      caret-color: var(--g);
+      text-shadow: var(--glow);
+      padding: 0;
+    }
+    .echo { white-space: pre-wrap; }
+    .echo .cmd { color: var(--bright); }
+    .echo .arg { color: var(--dim); }
+    .cout { color: var(--g); white-space: pre-wrap; line-height: 1.7; margin: 2px 0 12px; }
+    .cout .h { color: var(--bright); }
+    .cout .dim { color: var(--dim); }
+    .cout a { color: var(--g); border-bottom: 1px dashed var(--dim); }
+    .cout a:hover { color: var(--bright); }
+    .cerr { color: #ffbd2e; margin: 2px 0 12px; }
+    .hint { color: var(--dim); font-size: 12.5px; }
+
+    /* soft scrim: calms the page rain behind the figure so the two rains read as one */
+    #figscrim {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.1s ease;
+      background: radial-gradient(36vw 34vh at 78% 46%, var(--bg) 42%, rgba(0, 6, 10, 0) 80%);
+    }
+
+    body.dim #figscrim { opacity: 1; }
+
+    /* ===== Hero figure (video): appears on the RIGHT, plays A->B->C in place ===== */
+    #figure {
+      position: fixed;
+      top: 46%;
+      right: 1.5vw;
+      width: 42vw;
+      aspect-ratio: 16 / 9;
+      z-index: 5;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(0, -50%);
+      transition: opacity .8s ease;
+      mix-blend-mode: screen;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent),
+                          linear-gradient(to bottom, transparent, #000 13%, #000 87%, transparent);
+      -webkit-mask-composite: source-in;
+      mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent),
+                  linear-gradient(to bottom, transparent, #000 13%, #000 87%, transparent);
+      mask-composite: intersect;
+    }
+
+    #figure.show { opacity: 1; }
+
+    #figure .lay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+
+    #figure .lay.on { opacity: 1; }
+
+    /* split layout: figure on the right, terminal + content on the left */
+    body.split .wrap { margin: 0; max-width: none; padding-right: 46vw; padding-left: clamp(22px, 6vw, 80px); }
+    body.split .nav-in { max-width: none; }
+    body.split .term { margin-left: 0; }
+
+    @media (max-width: 760px) {
+      #figure { display: none; }
+      body.split .wrap, body.split .nav-in { padding-right: 22px; }
+    }
+
+    /* ===== Sections ===== */
+    section.blk { padding: 60px 0; }
+
+    .cmd { font-size: 13px; color: var(--dim); margin-bottom: 18px; }
+    .cmd b { color: var(--g); }
+    .cmd::before { content: "rakesh@matrix:~$ "; color: var(--dimmer); }
+
+    h2 {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 700;
+      color: var(--bright);
+      letter-spacing: .02em;
+      margin-bottom: 6px;
+    }
+
+    .panel {
+      border: 1px solid var(--dimmer);
+      border-radius: 10px;
+      background: rgba(0, 8, 12, .55);
+      padding: 22px;
+    }
+
+    p.body-txt { color: var(--g); font-size: 14.5px; max-width: 760px; }
+    p.body-txt + p.body-txt { margin-top: 14px; }
+
+    .muted { color: var(--dim); }
+    .accent { color: var(--bright); }
+
+    /* ===== Reveal ===== */
+    .rv {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .6s, transform .6s;
+    }
+
+    .rv.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv { opacity: 1; transform: none; }
+    }
+
+    /* ===== Stack readout ===== */
+    .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    @media (max-width: 680px) {
+      .stack-grid { grid-template-columns: 1fr; }
+    }
+
+    .scol h4 { font-size: 12px; color: var(--dim); letter-spacing: .12em; margin-bottom: 10px; }
+    .scol h4::before { content: "# "; }
+
+    .bar-line { display: flex; align-items: center; gap: 10px; font-size: 12.5px; margin-bottom: 7px; }
+    .bar-line .nm { width: 140px; color: var(--bright); }
+
+    .meter {
+      flex: 1;
+      height: 9px;
+      border: 1px solid var(--dimmer);
+      border-radius: 3px;
+      overflow: hidden;
+      background: rgba(0, 255, 65, .05);
+    }
+
+    .meter i {
+      display: block;
+      height: 100%;
+      background: var(--g);
+      box-shadow: 0 0 8px var(--g);
+      width: 0;
+      transition: width 1s ease;
+    }
+
+    .pct { width: 42px; text-align: right; color: var(--dim); }
+
+    /* ===== Projects ===== */
+    .proj {
+      border: 1px solid var(--dimmer);
+      border-radius: 10px;
+      background: rgba(0, 8, 12, .55);
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      transition: .18s;
+    }
+
+    .proj:hover { border-color: var(--g); box-shadow: 0 0 24px rgba(var(--ag), .14); }
+
+    .proj-h {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .proj-h .fn { font-size: 16px; color: var(--bright); }
+    .proj-h .fn::before { content: "▸ "; }
+
+    .proj-h .st {
+      font-size: 11px;
+      color: var(--dim);
+      border: 1px solid var(--dimmer);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .proj p { font-size: 13.5px; color: var(--g); margin-top: 8px; }
+    .ptags { margin-top: 10px; font-size: 12px; color: var(--dim); }
+    .ptags span { color: var(--bright); }
+    .proj a.live { font-size: 12.5px; color: var(--g); border-bottom: 1px dashed var(--dim); }
+
+    /* ===== Research callout ===== */
+    .note {
+      font-size: 12.5px;
+      color: var(--dimmer);
+      margin-top: 14px;
+      border-left: 2px solid var(--dimmer);
+      padding-left: 12px;
+    }
+
+    /* ===== Timeline ===== */
+    .tl { position: relative; padding-left: 24px; border-left: 1px solid var(--dimmer); }
+    .tl .row { position: relative; margin-bottom: 24px; }
+
+    .tl .row::before {
+      content: "";
+      position: absolute;
+      left: -29px;
+      top: 6px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--g);
+      box-shadow: 0 0 8px var(--g);
+    }
+
+    .tl .rh { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+    .tl .rt { font-size: 14.5px; color: var(--bright); }
+    .tl .rc { color: var(--g); }
+    .tl .rd { font-size: 12px; color: var(--dim); }
+    .tl .rp { font-size: 13px; color: var(--g); margin-top: 4px; max-width: 760px; }
+
+    /* ===== Contact ===== */
+    .contact .opts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+
+    .contact a {
+      border: 1px solid var(--dimmer);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--g);
+      transition: .15s;
+    }
+
+    .contact a:hover {
+      border-color: var(--g);
+      box-shadow: 0 0 18px rgba(var(--ag), .18);
+      color: var(--bright);
+    }
+
+    footer {
+      border-top: 1px solid var(--dimmer);
+      padding: 26px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    /* ===== Ambient telemetry HUD ===== */
+    #hud {
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      z-index: 15;
+      border: 1px solid var(--dimmer);
+      border-radius: 8px;
+      background: rgba(0, 6, 10, .78);
+      backdrop-filter: blur(3px);
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--dim);
+      line-height: 1.5;
+      min-width: 168px;
+      text-shadow: var(--glow);
+    }
+
+    #hud .hl {
+      color: var(--dim);
+      letter-spacing: .14em;
+      border-bottom: 1px solid var(--dimmer);
+      padding-bottom: 5px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #hud .hl b { color: var(--g); }
+    #hud .row { display: flex; justify-content: space-between; gap: 8px; }
+    #hud .v { color: var(--g); }
+    #hud .gbar { color: var(--g); letter-spacing: 1px; }
+    #hud .gbar .off { color: var(--dimmer); }
+
+    @media (max-width: 600px) {
+      #hud { display: none; }
+    }
+
+    /* ===== Screen glitch pulse ===== */
+    #pulse {
+      position: fixed;
+      inset: 0;
+      z-index: 14;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #pulse.fire { animation: glitchpulse .35s steps(2) 1; }
+
+    @keyframes glitchpulse {
+      0% { opacity: 0; transform: translate(0, 0); }
+      20% {
+        opacity: .5;
+        transform: translate(-3px, 1px);
+        background: repeating-linear-gradient(0deg,
+          rgba(0, 255, 65, .06) 0, rgba(0, 255, 65, .06) 2px, transparent 3px);
+      }
+      40% { opacity: .3; transform: translate(2px, -2px); }
+      60% { opacity: .6; transform: translate(-2px, 0); }
+      100% { opacity: 0; transform: translate(0, 0); }
+    }
+
+    /* ===== RGB-split glitch on card hover ===== */
+    .proj:hover .proj-h .fn { animation: rgbsplit .5s steps(2) infinite; }
+
+    @keyframes rgbsplit {
+      0%, 100% { text-shadow: var(--glow); }
+      33% { text-shadow: -2px 0 #ff2bd6, 2px 0 #2bf5ff; }
+      66% { text-shadow: 2px 0 #ff2bd6, -2px 0 #2bf5ff; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="rain"></canvas>
+  <div id="figure">
+    <video class="lay" muted playsinline preload="auto"></video>
+    <video class="lay" muted playsinline preload="auto"></video>
+  </div>
+  <div id="scan"></div>
+  <div id="pulse"></div>
+  <div id="figscrim"></div>
+
+  <div id="hud">
+    <div class="hl"><span>[ sys.monitor ]</span><b id="h-up">00:00:00</b></div>
+    <div class="row"><span>cpu</span><span class="gbar" id="h-cpu"></span></div>
+    <div class="row"><span>mem</span><span class="gbar" id="h-mem"></span></div>
+    <div class="row"><span>ble.signal</span><span class="gbar" id="h-sig"></span></div>
+    <div class="row"><span>status</span><span class="v" id="h-st">secure</span></div>
+  </div>
+
+  <nav>
+    <div class="nav-in">
+      <div class="id">rakesh@matrix:<b>~</b>$</div>
+      <div class="links">
+        <a href="#about">about</a>
+        <a href="#stack">stack</a>
+        <a href="#projects">projects</a>
+        <a href="#research">research</a>
+        <a href="#work">experience</a>
+        <a href="#contact">contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="term">
+        <div class="bar">
+          <span class="dot" style="background:#ff5f56"></span>
+          <span class="dot" style="background:#ffbd2e"></span>
+          <span class="dot" style="background:#27c93f"></span>
+          <span class="t">— bash — rakesh@matrix</span>
+        </div>
+        <div class="body"><div id="boot" class="out"></div></div>
+      </div>
+      <a href="#about" class="scrollhint" aria-label="scroll down">scroll<span class="chev">▼</span></a>
+    </div>
+  </header>
+
+  <!-- ABOUT -->
+  <section class="blk" id="about">
+    <div class="wrap rv">
+      <div class="cmd">cat <b>about.md</b></div>
+      <h2>// about</h2>
+      <div class="panel" style="margin-top:14px">
+        <p class="body-txt">I've spent <span class="accent">12+ years</span> building iOS applications that people actually depend on — from enterprise mobility at Deloitte to cross-platform fintech at hedgehog lab to, now, Bluetooth SDKs that connect hearing aids to the world.</p>
+        <p class="body-txt">My work lives at the <span class="accent">low level</span> — CoreBluetooth state machines, GATT profiles, reverse-engineering proprietary device protocols, and squeezing reliability out of radios that don't want to cooperate. Every line of code I write helps someone hear better.</p>
+        <p class="body-txt">Off the clock I'm building <span class="accent">OmWhisper</span> — a macOS voice-transcription app powered by fully on-device AI (whisper.cpp), built from scratch in Rust + Tauri. No cloud. No telemetry. I don't just explore new tech — I ship it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="blk" id="stack">
+    <div class="wrap rv">
+      <div class="cmd">htop <b>--stack</b></div>
+      <h2>// stack</h2>
+      <div class="panel" style="margin-top:14px">
+        <div class="stack-grid">
+          <div class="scol">
+            <h4>core</h4>
+            <div class="bar-line"><span class="nm">Swift / SwiftUI</span><span class="meter"><i data-w="96"></i></span><span class="pct">96</span></div>
+            <div class="bar-line"><span class="nm">CoreBluetooth</span><span class="meter"><i data-w="94"></i></span><span class="pct">94</span></div>
+            <div class="bar-line"><span class="nm">UIKit</span><span class="meter"><i data-w="90"></i></span><span class="pct">90</span></div>
+            <div class="bar-line"><span class="nm">GATT / BLE</span><span class="meter"><i data-w="92"></i></span><span class="pct">92</span></div>
+          </div>
+          <div class="scol">
+            <h4>systems &amp; tooling</h4>
+            <div class="bar-line"><span class="nm">Rust</span><span class="meter"><i data-w="74"></i></span><span class="pct">74</span></div>
+            <div class="bar-line"><span class="nm">Tauri / React</span><span class="meter"><i data-w="78"></i></span><span class="pct">78</span></div>
+            <div class="bar-line"><span class="nm">CI/CD · Fastlane</span><span class="meter"><i data-w="88"></i></span><span class="pct">88</span></div>
+            <div class="bar-line"><span class="nm">XCTest / TDD</span><span class="meter"><i data-w="86"></i></span><span class="pct">86</span></div>
+          </div>
+        </div>
+        <div class="ptags" style="margin-top:16px">also: <span>Combine · Flutter · GraphQL · Firebase · WebSockets · MVVM · SonarQube · BLE Sniffers · whisper.cpp</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="blk" id="projects">
+    <div class="wrap rv">
+      <div class="cmd">ls -la <b>~/projects</b></div>
+      <h2>// projects</h2>
+
+      <div class="proj" style="margin-top:16px">
+        <div class="proj-h"><span class="fn">omwhisper.app</span><span class="st">shipping · personal</span></div>
+        <p>macOS voice-transcription powered by on-device AI (whisper.cpp). Fast, private, fully offline — built from scratch to go deep on systems programming and local ML.</p>
+        <div class="ptags">stack: <span>Rust · Tauri · React · whisper.cpp</span> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-h"><span class="fn">ble-sdk.framework</span><span class="st">production · global</span></div>
+        <p>BLE-based iOS SDKs enabling communication with proprietary hearing-aid hardware. Modular, scalable, and optimized CoreBluetooth interactions for stable, secure connectivity at global scale.</p>
+        <div class="ptags">stack: <span>Swift · CoreBluetooth · GATT · XCTest · Fastlane</span></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-h"><span class="fn">herc-rentals.ipa</span><span class="st">delivered · Deloitte</span></div>
+        <p>Mission-critical iOS app using BLE-based access management. Led re-architecture to MVVM, introduced structured unit testing, and integrated SonarQube for quality and security.</p>
+        <div class="ptags">stack: <span>Swift · BLE · MVVM · SonarQube</span></div>
+      </div>
+
+      <div class="proj">
+        <div class="proj-h"><span class="fn">enterprise-sales.ipad</span><span class="st">delivered · Concentrix</span></div>
+        <p>Enterprise iPad app for mobile sales, trade-in, and device upgrades. Led globally distributed teams and drove modularization via CocoaPods to 80% test coverage.</p>
+        <div class="ptags">stack: <span>Swift · UIKit · CocoaPods</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH / LOW-LEVEL -->
+  <section class="blk" id="research">
+    <div class="wrap rv">
+      <div class="cmd">cat <b>research.log</b></div>
+      <h2>// reverse engineering &amp; low-level</h2>
+      <div class="panel" style="margin-top:14px">
+        <p class="body-txt"><span class="muted">[+]</span> Reverse-engineered proprietary BLE protocols to drive hearing-aid connectivity across global apps.</p>
+        <p class="body-txt"><span class="muted">[+]</span> BLE sniffing &amp; GATT profile analysis to debug and harden device communication.</p>
+        <p class="body-txt"><span class="muted">[+]</span> Designed CoreBluetooth state machines resilient to flaky radios, disconnects, and race conditions.</p>
+        <p class="body-txt"><span class="muted">[+]</span> Systems programming in Rust; on-device ML inference with whisper.cpp — no network round-trips.</p>
+        <div class="note">// add real security creds here when ready — CTF placements, bug bounties, CVEs, write-ups, or a security repo. send them and I'll wire them in.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="blk" id="work">
+    <div class="wrap rv">
+      <div class="cmd">git log <b>--career</b></div>
+      <h2>// experience</h2>
+      <div class="panel" style="margin-top:14px">
+        <div class="tl">
+          <div class="row"><div class="rh"><div class="rt">Lead Engineer · <span class="rc">WS Audiology</span></div><div class="rd">Nov 2023 — present</div></div><div class="rp">Lead BLE-based iOS SDKs powering hearing-aid connectivity worldwide; architect modular SDKs and drive CI/CD, test automation, and docs.</div></div>
+          <div class="row"><div class="rh"><div class="rt">Senior iOS Developer · <span class="rc">hedgehog lab</span></div><div class="rd">Apr 2022 — Oct 2023</div></div><div class="rp">Built iOS apps with SwiftUI &amp; Flutter; delivered cross-platform solutions across fintech, wellness, and e-commerce (Newcastle, UK).</div></div>
+          <div class="row"><div class="rh"><div class="rt">Senior Consultant · <span class="rc">Deloitte</span></div><div class="rd">Sep 2021 — Apr 2022</div></div><div class="rp">Delivered a mission-critical BLE-access iOS app for Herc Rentals; led MVVM re-architecture and introduced SonarQube.</div></div>
+          <div class="row"><div class="rh"><div class="rt">Associate Technical Lead · <span class="rc">Concentrix Catalyst</span></div><div class="rd">Aug 2019 — Aug 2021</div></div><div class="rp">Led an enterprise iPad app and offshore teams; drove modularization to 80% coverage and mentored developers.</div></div>
+          <div class="row"><div class="rh"><div class="rt">Developer · <span class="rc">hedgehog lab</span></div><div class="rd">Oct 2017 — Jul 2019</div></div><div class="rp">Delivered high-visual-impact iOS apps for clients including Boutique Baller and Kodak; bridged India–UK teams.</div></div>
+          <div class="row"><div class="rh"><div class="rt">iOS App Developer · <span class="rc">Instancy</span></div><div class="rd">Mar 2016 — Sep 2017</div></div><div class="rp">Built and shipped a white-label LMS app serving multiple e-learning clients.</div></div>
+          <div class="row"><div class="rh"><div class="rt">iOS App Developer · <span class="rc">Attic Infomatics</span></div><div class="rd">Jan 2014 — Feb 2016</div></div><div class="rp">Grew from intern to full-time iOS dev; hands-on UIKit and RESTful services across client projects.</div></div>
+        </div>
+        <div class="ptags" style="margin-top:16px"># education: <span>M.Sc. Information Technology, JNTUH (2012–2014)</span> · <span>B.Tech ECE, SVIT (2005–2009)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="blk contact" id="contact">
+    <div class="wrap rv">
+      <div class="cmd">./<b>contact.sh</b></div>
+      <h2>// let's connect</h2>
+      <p class="body-txt" style="margin-top:8px">Open to healthcare tech, mobile SDKs, on-device AI, or anything low-level and interesting. <span class="muted">// connection open — awaiting input</span></p>
+      <div class="opts">
+        <a href="mailto:rakeshkusuma1987@gmail.com">✉ rakeshkusuma1987@gmail.com</a>
+        <a href="tel:+919949347111">☎ +91 99493 47111</a>
+        <a href="https://github.com/rockykusuma" target="_blank" rel="noopener">⌨ github.com/rockykusuma</a>
+        <a href="https://www.linkedin.com/in/rakeshkusuma" target="_blank" rel="noopener">⚯ linkedin.com/in/rakeshkusuma</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2026 rakesh kusuma — hyderabad · <span style="color:var(--g)">built in the terminal</span> · connection closed_</footer>
+
+  <script>
+    (function () {
+      /* ===== Palette ===== */
+      const RAIN = '#00FF41', HI = '#b6ffc6';
+
+      /* ===== Code rain ===== */
+      const cv = document.getElementById('rain'), ctx = cv.getContext('2d');
+      let cols, drops;
+      const fs = 14;
+      const glyphs = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>{}[]/$#@&*';
+
+      function resize() {
+        cv.width = innerWidth;
+        cv.height = innerHeight;
+        cols = Math.floor(cv.width / fs);
+        drops = Array(cols).fill(0).map(() => Math.random() * -40);
+      }
+      resize();
+      addEventListener('resize', resize);
+
+      let last = 0;
+      function loop(t) {
+        if (t - last > 55) {
+          last = t;
+          ctx.fillStyle = 'rgba(0,6,10,0.055)';
+          ctx.fillRect(0, 0, cv.width, cv.height);
+          ctx.font = fs + 'px monospace';
+          for (let i = 0; i < cols; i++) {
+            const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+            const y = drops[i] * fs;
+            ctx.fillStyle = Math.random() > 0.93 ? HI : RAIN;
+            ctx.fillText(ch, i * fs, y);
+            if (y > cv.height && Math.random() > 0.955) drops[i] = 0;
+            drops[i]++;
+          }
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      /* ===== Cinematic hero boot ===== */
+      const boot = document.getElementById('boot');
+      const term = document.querySelector('.term'), tbody = document.querySelector('.body');
+      const isM = matchMedia('(max-width:600px)').matches;
+      const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+      function stage(w, hd, hm) {
+        if (term) term.style.maxWidth = w + 'px';
+        if (tbody) tbody.style.minHeight = (isM ? hm : hd) + 'px';
+      }
+
+      const lines = [
+        { p: '$ ', t: 'ssh rakesh@matrix' },
+        { p: '', t: '[ ok ] secure channel established', c: 'ln-ok' },
+        { p: '$ ', t: 'whoami --full', trigger: true },
+        { p: '', t: 'rakesh kusuma — lead engineer @ ws audiology', c: 'ln-ok' },
+        { p: '', t: 'role: low-level iOS · bluetooth low energy · on-device AI' },
+        { p: '$ ', t: 'cat mission.txt' },
+        { p: '', t: '> every line of code helps someone hear better.', c: 'ln-ok' },
+        { p: '', t: "type 'help' to explore — or just talk to the shell.", c: 'hint' }
+      ];
+
+      let li = 0;
+      function typeNext() {
+        if (li >= lines.length) {
+          enableCLI();
+          return;
+        }
+
+        const L = lines[li];
+        const div = document.createElement('div');
+        if (L.c) div.className = L.c;
+        boot.appendChild(div);
+        if (li === 1) stage(560, 200, 235);
+
+        const full = L.p + L.t;
+        let i = 0;
+        (function step() {
+          div.textContent = full.slice(0, i);
+          if (i <= full.length) {
+            i++;
+            setTimeout(step, L.t.length > 40 ? 26 : 46);
+          } else {
+            li++;
+            if (L.trigger) triggerFigure(() => setTimeout(typeNext, 500));
+            else setTimeout(typeNext, L.t ? 320 : 120);
+          }
+        })();
+      }
+
+      boot.innerHTML = '<div><span class="cursor"></span></div>';
+      setTimeout(function () { boot.innerHTML = ''; typeNext(); }, 1200);
+
+      /* ===== interactive console ===== */
+      const PROMPT = "rakesh@matrix:<b>~</b>$ ";
+      const history = [];
+      let hIdx = 0, cliLine = null;
+      const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+      function out(html, cls) {
+        const d = document.createElement('div');
+        d.className = cls || 'cout';
+        d.innerHTML = html;
+        boot.insertBefore(d, cliLine);
+      }
+
+      const CMDS = {
+        help: () =>
+          "<span class='h'>available commands</span>\n" +
+          "  <span class='h'>about</span>       who I am\n" +
+          "  <span class='h'>skills</span>      my stack\n" +
+          "  <span class='h'>projects</span>    what I've built\n" +
+          "  <span class='h'>research</span>    low-level &amp; reverse engineering\n" +
+          "  <span class='h'>experience</span>  career log\n" +
+          "  <span class='h'>contact</span>     how to reach me\n" +
+          "  <span class='h'>ls</span>          list sections\n" +
+          "  <span class='h'>clear</span>       clear the screen\n" +
+          "<span class='dim'>also try: sudo hire-me</span>",
+        about: () =>
+          "12+ years building iOS apps people depend on. I now lead <span class='h'>BLE SDKs at WS Audiology</span> " +
+          "connecting hearing aids to the world. My work lives at the low level — CoreBluetooth state machines, " +
+          "GATT profiles, and reverse-engineering proprietary device protocols.",
+        skills: () =>
+          "<span class='h'>core</span>     Swift / SwiftUI · CoreBluetooth · GATT/BLE · UIKit\n" +
+          "<span class='h'>systems</span>  Rust · Tauri · whisper.cpp\n" +
+          "<span class='h'>tooling</span>  CI/CD · Fastlane · XCTest · SonarQube",
+        projects: () =>
+          "<span class='h'>omwhisper.app</span>         on-device macOS transcription · Rust/Tauri · <a href='https://github.com/rockykusuma' target='_blank' rel='noopener'>github ↗</a>\n" +
+          "<span class='h'>ble-sdk.framework</span>     hearing-aid BLE SDKs · Swift/CoreBluetooth\n" +
+          "<span class='h'>herc-rentals.ipa</span>      BLE access app · Deloitte\n" +
+          "<span class='h'>enterprise-sales.ipad</span> iPad sales app · Concentrix",
+        research: () =>
+          "[+] reverse-engineered proprietary BLE protocols for global hearing-aid apps\n" +
+          "[+] BLE sniffing &amp; GATT profile analysis to harden device comms\n" +
+          "[+] CoreBluetooth state machines resilient to flaky radios &amp; races\n" +
+          "[+] systems programming in Rust; on-device ML with whisper.cpp",
+        experience: () =>
+          "<span class='h'>WS Audiology</span>   lead engineer       2023 — now\n" +
+          "<span class='h'>hedgehog lab</span>   senior iOS dev      2022 — 23\n" +
+          "<span class='h'>Deloitte</span>       senior consultant   2021 — 22\n" +
+          "<span class='h'>Concentrix</span>     assoc. tech lead    2019 — 21",
+        contact: () =>
+          "email     <a href='mailto:rakeshkusuma1987@gmail.com'>rakeshkusuma1987@gmail.com</a>\n" +
+          "phone     <a href='tel:+919949347111'>+91 99493 47111</a>\n" +
+          "github    <a href='https://github.com/rockykusuma' target='_blank' rel='noopener'>github.com/rockykusuma</a>\n" +
+          "linkedin  <a href='https://www.linkedin.com/in/rakeshkusuma' target='_blank' rel='noopener'>linkedin.com/in/rakeshkusuma</a>",
+        whoami: () => "rakesh kusuma — lead engineer @ ws audiology",
+        ls: () => "about  stack  projects  research  experience  contact"
+      };
+      CMDS.stack = CMDS.skills;
+      CMDS.work = CMDS.experience;
+
+      function run(raw) {
+        const cmd = raw.toLowerCase().replace(/\s+/g, ' ').trim();
+        if (cmd === 'sudo hire-me' || cmd === 'sudo hire me') {
+          out("<span class='dim'>[sudo] verifying credentials...</span>\n<span class='h'>access granted ✓</span> opening secure channel → <a href='mailto:rakeshkusuma1987@gmail.com'>rakeshkusuma1987@gmail.com</a>");
+          return;
+        }
+        const key = cmd.split(' ')[0];
+        if (!key) return;
+        if (key === 'clear') { [...boot.children].forEach(c => { if (c !== cliLine) c.remove(); }); return; }
+        if (CMDS[key]) { out(CMDS[key]()); return; }
+        out("command not found: " + esc(key) + " — type <span style='color:var(--g)'>help</span>", 'cerr');
+      }
+
+      function enableCLI() {
+        const line = document.createElement('div');
+        line.className = 'cli-line';
+        line.innerHTML = "<span class='pfx'>" + PROMPT + "</span><input id='cli' autocomplete='off' autocapitalize='off' spellcheck='false' aria-label='terminal input'>";
+        boot.appendChild(line);
+        cliLine = line;
+        const cli = line.querySelector('#cli');
+        const term = document.querySelector('.term');
+        const body = document.querySelector('.body');
+        term.addEventListener('mousedown', e => { if (!e.target.closest('a')) cli.focus({ preventScroll: true }); });
+        cli.focus({ preventScroll: true });
+        cli.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            const raw = cli.value.trim();
+            cli.value = '';
+            const echo = document.createElement('div');
+            echo.className = 'echo';
+            const p = raw.split(' ');
+            echo.innerHTML = "<span class='pfx'>" + PROMPT + "</span><span class='cmd'>" + esc(p[0] || '') + "</span>" +
+              (p.length > 1 ? " <span class='arg'>" + esc(p.slice(1).join(' ')) + "</span>" : "");
+            boot.insertBefore(echo, cliLine);
+            if (raw) { history.push(raw); hIdx = history.length; run(raw); }
+            body.scrollTop = body.scrollHeight;
+          } else if (e.key === 'ArrowUp') {
+            if (hIdx > 0) { hIdx--; cli.value = history[hIdx]; e.preventDefault(); }
+          } else if (e.key === 'ArrowDown') {
+            if (hIdx < history.length - 1) { hIdx++; cli.value = history[hIdx]; }
+            else { hIdx = history.length; cli.value = ''; }
+            e.preventDefault();
+          }
+        });
+      }
+
+      /* ===== Hero figure: appears right, crossfades A -> B -> C (loop) =====
+         Two stacked <video> layers. The next clip is fully decoded on the
+         hidden layer, then we dissolve to it — so there is no load jerk. */
+      const figure = document.getElementById('figure');
+      const layers = figure.querySelectorAll('.lay');
+      const INTRO = ['fal_out/shot_a.mp4', 'fal_out/shot_b.mp4'];
+      const LOOP = 'fal_out/shot_c.mp4';
+      let cur = 0, step = 0, onDocked = null;
+
+      document.body.classList.add('split');
+
+      function resume() {
+        if (onDocked) { const f = onDocked; onDocked = null; f(); }
+      }
+
+      function playClip(src, loop, isFinal) {
+        const prev = layers[cur], nx = layers[cur ^ 1];
+        nx.loop = !!loop;
+        nx.muted = true;
+        nx.playsInline = true;
+        nx.setAttribute('playsinline', '');
+        nx.src = src;
+        let fired = false;
+        const go = () => {
+          if (fired) return;
+          fired = true;
+          const p = nx.play();
+          if (p && p.catch) p.catch(() => {});
+          nx.classList.add('on');
+          if (prev) prev.classList.remove('on');
+          cur ^= 1;
+          if (!loop) nx.onended = advance;   // advance once this intro clip ends
+          if (isFinal) resume();             // hand control back to the terminal
+        };
+        nx.addEventListener('canplaythrough', go, { once: true });
+        nx.addEventListener('loadeddata', go, { once: true });
+        nx.load();
+        setTimeout(go, 1500);                 // fallback if media events are missed
+      }
+
+      function advance() {
+        step++;
+        if (step < INTRO.length) playClip(INTRO[step], false, false);
+        else playClip(LOOP, true, true);
+      }
+
+      function triggerFigure(done) {
+        onDocked = done;
+        figure.classList.add('show');
+        document.body.classList.add('dim');
+        setTimeout(resume, 14000);            // safety: never leave the terminal stuck
+        if (reduce) { playClip(LOOP, true, true); return; }
+        step = 0;
+        playClip(INTRO[0], false, false);
+      }
+
+      /* ===== Decrypt text reveal ===== */
+      const SC = '!<>-_\\/[]{}=+*^?#01ABCDEFアイウエオ';
+      function decrypt(el) {
+        const final = el.dataset.txt || el.textContent;
+        el.dataset.txt = final;
+        const q = final.split('').map((c, i) => {
+          const s = i * 1.3 + Math.random() * 6;
+          return { c, s: s, e: s + 8 };
+        });
+        let f = 0;
+        (function tick() {
+          let out = '', done = 0;
+          for (const item of q) {
+            if (item.c === ' ') { out += ' '; done++; continue; }
+            if (f >= item.e) { out += item.c; done++; }
+            else if (f >= item.s) { out += SC[Math.floor(Math.random() * SC.length)]; }
+            else { out += ' '; }
+          }
+          el.textContent = out;
+          if (done < q.length) { f++; requestAnimationFrame(tick); }
+          else el.textContent = final;
+        })();
+      }
+
+      /* ===== Reveal + meters + decrypt ===== */
+      const io = new IntersectionObserver((es) => {
+        es.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            e.target.querySelectorAll('.meter i').forEach(m => { m.style.width = m.dataset.w + '%'; });
+            e.target.querySelectorAll('h2,.proj-h .fn').forEach(decrypt);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: .12 });
+      document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+      /* ===== Ambient telemetry HUD ===== */
+      const t0 = Date.now();
+      const up = document.getElementById('h-up');
+      const cpuEl = document.getElementById('h-cpu'),
+            memEl = document.getElementById('h-mem'),
+            sigEl = document.getElementById('h-sig'),
+            stEl = document.getElementById('h-st');
+
+      function bars(pct) {
+        const n = Math.round(pct / 10);
+        let s = '';
+        for (let i = 0; i < 10; i++) s += i < n ? '▓' : '<span class="off">░</span>';
+        return s + ' ' + Math.round(pct) + '%';
+      }
+
+      function dots(n) {
+        let s = '';
+        for (let i = 0; i < 4; i++) s += i < n ? '●' : '<span class="off">○</span>';
+        return s;
+      }
+
+      let cpu = 38, mem = 44;
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      setInterval(() => {
+        const s = Math.floor((Date.now() - t0) / 1000);
+        up.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
+      }, 1000);
+
+      setInterval(() => {
+        cpu = Math.max(12, Math.min(94, cpu + (Math.random() * 24 - 12)));
+        mem = Math.max(20, Math.min(88, mem + (Math.random() * 14 - 7)));
+        cpuEl.innerHTML = bars(cpu);
+        memEl.innerHTML = bars(mem);
+        sigEl.innerHTML = dots(2 + Math.floor(Math.random() * 3));
+        if (cpu > 85) { stEl.textContent = 'under load'; stEl.style.color = '#ffbd2e'; }
+        else { stEl.textContent = 'secure'; stEl.style.color = ''; }
+      }, 1500);
+
+      /* ===== Glitch pulse ===== */
+      const pulse = document.getElementById('pulse');
+      function scheduleGlitch() {
+        const wait = 5000 + Math.random() * 8000;
+        setTimeout(() => {
+          pulse.classList.add('fire');
+          setTimeout(() => pulse.classList.remove('fire'), 360);
+          scheduleGlitch();
+        }, wait);
+      }
+      scheduleGlitch();
+    })();
+  </script>
+</body>
+</html>

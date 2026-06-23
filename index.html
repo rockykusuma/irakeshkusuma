@@ -524,6 +524,73 @@
       33% { text-shadow: -2px 0 #ff2bd6, 2px 0 #2bf5ff; }
       66% { text-shadow: 2px 0 #ff2bd6, -2px 0 #2bf5ff; }
     }
+
+    /* ===== Mouse-reactive hero ===== */
+    /* parallax depth layers driven by one rAF loop (see script) */
+    #rain, #figure { will-change: transform; }
+
+    .term {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    /* pointer glow — faint green light that trails the cursor */
+    #ptr {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 460px;
+      height: 460px;
+      margin: -230px 0 0 -230px;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      background: radial-gradient(circle, rgba(0, 255, 65, .10) 0%, rgba(0, 255, 65, .04) 35%, transparent 70%);
+      transition: opacity .5s ease;
+      will-change: transform;
+    }
+
+    body.ptr-on #ptr { opacity: 1; }
+
+    /* kill all reactive motion where it isn't wanted */
+    @media (prefers-reduced-motion: reduce), (hover: none), (max-width: 760px) {
+      #ptr { display: none; }
+    }
+
+    /* ===== Scroll-driven reveals (upgraded) ===== */
+    /* parent wipes up; children cascade in with a stagger */
+    .rv {
+      clip-path: inset(0 0 6% 0);
+      transition: opacity .6s ease, transform .6s ease, clip-path .7s cubic-bezier(.16, .84, .34, 1);
+    }
+
+    .rv.in { clip-path: inset(0 0 0 0); }
+
+    /* staggered children: cards + timeline rows rise in sequence */
+    .rv .proj,
+    .rv .tl .row {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .5s ease, transform .5s cubic-bezier(.16, .84, .34, 1);
+    }
+
+    .rv.in .proj,
+    .rv.in .tl .row { opacity: 1; transform: none; }
+
+    .rv.in .proj:nth-of-type(1), .rv.in .tl .row:nth-child(1) { transition-delay: .05s; }
+    .rv.in .proj:nth-of-type(2), .rv.in .tl .row:nth-child(2) { transition-delay: .12s; }
+    .rv.in .proj:nth-of-type(3), .rv.in .tl .row:nth-child(3) { transition-delay: .19s; }
+    .rv.in .proj:nth-of-type(4), .rv.in .tl .row:nth-child(4) { transition-delay: .26s; }
+    .rv.in .tl .row:nth-child(5) { transition-delay: .33s; }
+    .rv.in .tl .row:nth-child(6) { transition-delay: .40s; }
+    .rv.in .tl .row:nth-child(7) { transition-delay: .47s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv { clip-path: none; }
+      .rv .proj, .rv .tl .row { opacity: 1; transform: none; transition: none; }
+    }
   </style>
 </head>
 
@@ -536,6 +603,7 @@
   <div id="scan"></div>
   <div id="pulse"></div>
   <div id="figscrim"></div>
+  <div id="ptr"></div>
 
   <div id="hud">
     <div class="hl"><span>[ sys.monitor ]</span><b id="h-up">00:00:00</b></div>
@@ -1033,6 +1101,89 @@
         }, wait);
       }
       scheduleGlitch();
+
+      /* ===== Mouse-reactive hero (parallax tilt + depth + pointer glow) =====
+         One rAF loop lerps toward the latest pointer target, so motion stays
+         smooth and we never thrash layout. Gated off for touch / small / reduced. */
+      /* gated live, not once: small-screen / reduced checks are re-read each
+         frame so a narrow->wide resize starts working without a reload */
+      const mqSmall = matchMedia('(max-width: 760px)');
+      const mqTouch = matchMedia('(hover: none)');
+
+      if (!reduce) {
+        const termEl = document.querySelector('.term');
+        const ptr = document.getElementById('ptr');
+        // target (t*) follows the mouse; current (c*) eases toward it
+        let tx = 0, ty = 0, cx = 0, cy = 0, px = 0, py = 0;
+        let active = false;
+        let on = false;   // whether reactive motion is currently allowed
+
+        function liveReactive() { return !mqSmall.matches && !mqTouch.matches; }
+
+        addEventListener('pointermove', e => {
+          const w = innerWidth || 1, h = innerHeight || 1;
+          // normalized -0.5..0.5 from viewport center
+          tx = e.clientX / w - 0.5;
+          ty = e.clientY / h - 0.5;
+          px = e.clientX;
+          py = e.clientY;
+          if (!active && liveReactive()) { active = true; document.body.classList.add('ptr-on'); }
+        }, { passive: true });
+
+        addEventListener('pointerout', e => {
+          if (!e.relatedTarget) { tx = 0; ty = 0; active = false; document.body.classList.remove('ptr-on'); }
+        });
+
+        let glowX = (innerWidth || 0) / 2, glowY = (innerHeight || 0) / 2;
+        (function react() {
+          requestAnimationFrame(react);
+          const want = liveReactive();
+          if (!want) {
+            // reset any inline transforms we set, then idle
+            if (on) {
+              if (termEl) termEl.style.transform = '';
+              cv.style.transform = '';
+              figure.style.transform = '';
+              document.body.classList.remove('ptr-on');
+              on = false; active = false;
+            }
+            return;
+          }
+          on = true;
+
+          cx += (tx - cx) * 0.08;
+          cy += (ty - cy) * 0.08;
+          glowX += (px - glowX) * 0.18;
+          glowY += (py - glowY) * 0.18;
+
+          if (termEl) {
+            termEl.style.transform =
+              'perspective(900px) rotateY(' + (cx * 12).toFixed(2) + 'deg) rotateX(' + (-cy * 12).toFixed(2) + 'deg)';
+          }
+          // depth: rain drifts against the cursor, video figure drifts with it
+          cv.style.transform = 'translate(' + (-cx * 18).toFixed(1) + 'px,' + (-cy * 18).toFixed(1) + 'px)';
+          figure.style.transform = 'translate(' + (cx * 26).toFixed(1) + 'px, calc(-50% + ' + (cy * 26).toFixed(1) + 'px))';
+          ptr.style.transform = 'translate(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px)';
+        })();
+      }
+
+      /* ===== Scroll-velocity glitch =====
+         Fast flicks fire the existing glitch pulse; throttled so it won't spam. */
+      if (!reduce) {
+        let lastY = scrollY, lastT = performance.now(), cool = 0;
+        addEventListener('scroll', () => {
+          const now = performance.now();
+          const dy = Math.abs(scrollY - lastY);
+          const dt = now - lastT || 16;
+          const v = dy / dt;                 // px per ms
+          lastY = scrollY; lastT = now;
+          if (v > 2.4 && now > cool) {
+            cool = now + 1400;               // min gap between fires
+            pulse.classList.add('fire');
+            setTimeout(() => pulse.classList.remove('fire'), 360);
+          }
+        }, { passive: true });
+      }
     })();
   </script>
 </body>

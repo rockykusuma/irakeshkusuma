@@ -18,6 +18,7 @@
       --bright: #b6ffc6;
       --glow: 0 0 6px rgba(0, 255, 65, .45);
       --ag: 0, 255, 65;
+      --ease-out: cubic-bezier(.23, 1, .32, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +32,6 @@
       text-shadow: var(--glow);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
-      transition: background .4s, color .4s;
     }
 
     a { color: inherit; text-decoration: none; }
@@ -98,8 +98,14 @@
     .nav-in .id b { color: var(--bright); }
 
     .links { display: flex; gap: 18px; flex-wrap: wrap; }
-    .links a { font-size: 12.5px; color: var(--dim); transition: .15s; }
-    .links a:hover { color: var(--g); text-shadow: var(--glow); }
+    .links a {
+      font-size: 12.5px; color: var(--dim);
+      transition: color .15s var(--ease-out), text-shadow .15s var(--ease-out), transform .12s var(--ease-out);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .links a:hover { color: var(--g); text-shadow: var(--glow); }
+    }
+    .links a:active { transform: scale(.97); }
     .links a::before { content: "./"; }
 
     /* ===== Hero ===== */
@@ -249,6 +255,10 @@
       overflow: hidden;
       pointer-events: none;
       opacity: 0;
+      /* The formed-figure still (frame_b_last.png) is NOT shown up front — that
+         made the box reveal the final image before the build animation ran.
+         It's applied only via .formed, once the build clips have played through
+         to the fully-formed frame (or immediately in reduced-motion). */
       transform: translate(0, -50%);
       transition: opacity .8s ease;
       mix-blend-mode: screen;
@@ -261,6 +271,9 @@
     }
 
     #figure.show { opacity: 1; }
+
+    /* applied only after the build animation reaches the formed frame */
+    #figure.formed { background: url('fal_out/frame_b_last.png') center / cover no-repeat; }
 
     #figure .lay {
       position: absolute;
@@ -282,7 +295,23 @@
     body.split .term { margin-left: 0; }
 
     @media (max-width: 760px) {
-      #figure { display: none; }
+      /* mobile: show the WHOLE 16:9 frame as a band in the upper hero, so the
+         subject stays centered and fully visible (a full-height cover crop shoved
+         it off to the right). Sits behind the terminal, which scrolls over it. */
+      #figure {
+        top: 9%;
+        right: 0;
+        left: 0;
+        width: 100vw;
+        /* aspect-ratio 16/9 inherited -> height auto, no horizontal crop */
+        transform: none;
+        z-index: 1;
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent),
+                            linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+        mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent),
+                    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+      }
+      #figure.show { opacity: .58; }
       body.split .wrap, body.split .nav-in { padding-right: 22px; }
     }
 
@@ -318,7 +347,7 @@
     .rv {
       opacity: 0;
       transform: translateY(18px);
-      transition: opacity .6s, transform .6s;
+      transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
     }
 
     .rv.in { opacity: 1; transform: none; }
@@ -367,10 +396,13 @@
       background: rgba(0, 8, 12, .55);
       padding: 18px 20px;
       margin-bottom: 14px;
-      transition: .18s;
+      transition: border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), transform .12s var(--ease-out);
     }
 
-    .proj:hover { border-color: var(--g); box-shadow: 0 0 24px rgba(var(--ag), .14); }
+    @media (hover: hover) and (pointer: fine) {
+      .proj:hover { border-color: var(--g); box-shadow: 0 0 24px rgba(var(--ag), .14); }
+    }
+    .proj:active { transform: scale(.99); }
 
     .proj-h {
       display: flex;
@@ -437,14 +469,17 @@
       padding: 12px 18px;
       font-size: 13px;
       color: var(--g);
-      transition: .15s;
+      transition: border-color .15s var(--ease-out), box-shadow .15s var(--ease-out), color .15s var(--ease-out), transform .12s var(--ease-out);
     }
 
-    .contact a:hover {
-      border-color: var(--g);
-      box-shadow: 0 0 18px rgba(var(--ag), .18);
-      color: var(--bright);
+    @media (hover: hover) and (pointer: fine) {
+      .contact a:hover {
+        border-color: var(--g);
+        box-shadow: 0 0 18px rgba(var(--ag), .18);
+        color: var(--bright);
+      }
     }
+    .contact a:active { transform: scale(.97); }
 
     footer {
       border-top: 1px solid var(--dimmer);
@@ -563,7 +598,7 @@
     /* parent wipes up; children cascade in with a stagger */
     .rv {
       clip-path: inset(0 0 6% 0);
-      transition: opacity .6s ease, transform .6s ease, clip-path .7s cubic-bezier(.16, .84, .34, 1);
+      transition: opacity .6s var(--ease-out), transform .6s var(--ease-out), clip-path .7s cubic-bezier(.16, .84, .34, 1);
     }
 
     .rv.in { clip-path: inset(0 0 0 0); }
@@ -970,18 +1005,25 @@
          hidden layer, then we dissolve to it — so there is no load jerk. */
       const figure = document.getElementById('figure');
       const layers = figure.querySelectorAll('.lay');
+      /* shot_a -> shot_b builds the figure out of the rain. Both clips dissolve
+         the subject back into rain at their tails, so we FREEZE the final clip on
+         its fully-formed frame (HOLD_AT) instead of playing the dissolve. The CSS
+         background (frame_b_last.png) backs this up for reduced-motion / pre-intro.
+         shot_c is a second dissolve clip — intentionally unused, it emptied the box. */
       const INTRO = ['fal_out/shot_a.mp4', 'fal_out/shot_b.mp4'];
-      const LOOP = 'fal_out/shot_c.mp4';
+      const HOLD_AT = 2.5;   // seconds into the final clip where the figure is fully formed
       let cur = 0, step = 0;
 
       document.body.classList.add('split');
 
-      function playClip(src, loop) {
+      function playClip(src, { loop = false, holdAt = null } = {}) {
         const prev = layers[cur], nx = layers[cur ^ 1];
         nx.loop = !!loop;
         nx.muted = true;
         nx.playsInline = true;
         nx.setAttribute('playsinline', '');
+        nx.ontimeupdate = null;
+        nx.onended = null;
         nx.src = src;
         let fired = false;
         const go = () => {
@@ -992,7 +1034,12 @@
           nx.classList.add('on');
           if (prev) prev.classList.remove('on');
           cur ^= 1;
-          if (!loop) nx.onended = advance;   // advance once this intro clip ends
+          if (holdAt != null) {
+            // freeze on the formed frame — the clip dissolves after this point
+            nx.ontimeupdate = () => { if (nx.currentTime >= holdAt) { nx.ontimeupdate = null; nx.pause(); figure.classList.add('formed'); } };
+          } else if (!loop) {
+            nx.onended = advance;             // advance once this build clip ends
+          }
         };
         nx.addEventListener('canplaythrough', go, { once: true });
         nx.addEventListener('loadeddata', go, { once: true });
@@ -1002,16 +1049,17 @@
 
       function advance() {
         step++;
-        if (step < INTRO.length) playClip(INTRO[step], false);
-        else playClip(LOOP, true);
+        if (step < INTRO.length - 1) playClip(INTRO[step]);                 // transient build clip
+        else if (step === INTRO.length - 1) playClip(INTRO[step], { holdAt: HOLD_AT }); // final: hold on formed frame
       }
 
       function triggerFigure() {
         figure.classList.add('show');
         document.body.classList.add('dim');
-        if (reduce) { playClip(LOOP, true); return; }
+        // reduced motion: skip the clips, rest immediately on the still figure
+        if (reduce) { figure.classList.add('formed'); return; }
         step = 0;
-        playClip(INTRO[0], false);
+        playClip(INTRO[0]);
       }
 
       /* ===== Decrypt text reveal ===== */

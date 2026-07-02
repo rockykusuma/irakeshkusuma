@@ -3,21 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>rakesh@matrix:~ — iOS &amp; BLE engineer</title>
+  <title>Rakesh Kusuma — Lead iOS &amp; BLE Engineer</title>
+
+  <!-- ===== SEO / social ===== -->
+  <meta name="description" content="Lead engineer with 12+ years in low-level iOS, Bluetooth Low Energy, and on-device AI. I build BLE SDKs that connect hearing aids to the world.">
+  <meta name="author" content="Rakesh Kusuma">
+  <meta name="theme-color" content="#00060a">
+  <link rel="canonical" href="https://irakeshkusuma.vercel.app/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rakesh Kusuma — Lead iOS &amp; BLE Engineer">
+  <meta property="og:description" content="12+ years building low-level iOS, Bluetooth Low Energy, and on-device AI. Every line of code helps someone hear better.">
+  <meta property="og:url" content="https://irakeshkusuma.vercel.app/">
+  <meta property="og:image" content="https://irakeshkusuma.vercel.app/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rakesh Kusuma — Lead iOS &amp; BLE Engineer">
+  <meta name="twitter:description" content="12+ years building low-level iOS, Bluetooth Low Energy, and on-device AI.">
+  <meta name="twitter:image" content="https://irakeshkusuma.vercel.app/og.png">
+
+  <!-- Inline SVG favicon: green terminal prompt on dark -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300060a'/%3E%3Cpath d='M7 10l6 6-6 6' fill='none' stroke='%2300FF41' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='16' y1='23' x2='25' y2='23' stroke='%2300FF41' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg: #00060a;
-      --g: #00FF41;
-      --dim: #1f8a3a;
-      --dimmer: #13632a;
-      --bright: #b6ffc6;
-      --glow: 0 0 6px rgba(0, 255, 65, .45);
-      --ag: 0, 255, 65;
+      --g: #19f04b;
+      /* lifted for WCAG-AA readability on the dark bg (old values were too dark) */
+      --dim: #4cc46a;
+      --dimmer: #2a9a4a;
+      --bright: #c7ffd4;
+      /* full glow reserved for true accents; body text uses --glow-soft */
+      --glow: 0 0 6px rgba(25, 240, 75, .42);
+      --glow-soft: 0 0 1px rgba(25, 240, 75, .22);
+      --ag: 25, 240, 75;
       --ease-out: cubic-bezier(.23, 1, .32, 1);
     }
 
@@ -29,7 +56,7 @@
       color: var(--g);
       font-family: 'JetBrains Mono', ui-monospace, monospace;
       line-height: 1.65;
-      text-shadow: var(--glow);
+      text-shadow: var(--glow-soft);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
@@ -137,6 +164,58 @@
 
     @media (max-width: 560px) {
       .term { max-width: 100%; }
+    }
+
+    /* ===== Hero proof stat band ===== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 430px;
+      width: 100%;
+      margin: 24px auto 0;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+    }
+
+    /* revealed only once the terminal boot sequence finishes (see enableCLI) */
+    .stats.in { opacity: 1; transform: none; }
+
+    body.split .stats { margin-left: 0; }
+
+    .stat {
+      border: 1px solid var(--dimmer);
+      border-radius: 10px;
+      background: rgba(0, 8, 12, .5);
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .stat .n {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(20px, 3.3vw, 27px);
+      font-weight: 600;
+      color: var(--bright);
+      text-shadow: var(--glow);
+      line-height: 1.05;
+    }
+
+    .stat .l {
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 7px;
+      text-shadow: none;
+    }
+
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stats { opacity: 1; transform: none; transition: none; }
     }
 
     .scrollhint {
@@ -323,11 +402,13 @@
     .cmd::before { content: "rakesh@matrix:~$ "; color: var(--dimmer); }
 
     h2 {
-      font-size: clamp(22px, 4vw, 34px);
-      font-weight: 700;
+      font-family: 'Space Grotesk', 'JetBrains Mono', sans-serif;
+      font-size: clamp(24px, 4.4vw, 38px);
+      font-weight: 600;
       color: var(--bright);
-      letter-spacing: .02em;
+      letter-spacing: -.01em;
       margin-bottom: 6px;
+      text-shadow: var(--glow-soft);
     }
 
     .panel {
@@ -505,6 +586,17 @@
       line-height: 1.5;
       min-width: 168px;
       text-shadow: var(--glow);
+      /* hidden until the terminal boot finishes, then fades in a beat after the
+         stat band — so the page assembles in one deliberate sequence */
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .7s var(--ease-out) .25s, transform .7s var(--ease-out) .25s;
+    }
+
+    #hud.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #hud { opacity: 1; transform: none; transition: none; }
     }
 
     #hud .hl {
@@ -551,13 +643,13 @@
       100% { opacity: 0; transform: translate(0, 0); }
     }
 
-    /* ===== RGB-split glitch on card hover ===== */
-    .proj:hover .proj-h .fn { animation: rgbsplit .5s steps(2) infinite; }
+    /* ===== RGB-split glitch on card hover — one subtle pass, not a constant strobe ===== */
+    .proj:hover .proj-h .fn { animation: rgbsplit .4s var(--ease-out) 1; }
 
     @keyframes rgbsplit {
       0%, 100% { text-shadow: var(--glow); }
-      33% { text-shadow: -2px 0 #ff2bd6, 2px 0 #2bf5ff; }
-      66% { text-shadow: 2px 0 #ff2bd6, -2px 0 #2bf5ff; }
+      40% { text-shadow: -1px 0 rgba(255, 43, 214, .55), 1px 0 rgba(43, 245, 255, .55); }
+      70% { text-shadow: 1px 0 rgba(255, 43, 214, .4), -1px 0 rgba(43, 245, 255, .4); }
     }
 
     /* ===== Mouse-reactive hero ===== */
@@ -641,11 +733,11 @@
   <div id="ptr"></div>
 
   <div id="hud">
-    <div class="hl"><span>[ sys.monitor ]</span><b id="h-up">00:00:00</b></div>
-    <div class="row"><span>cpu</span><span class="gbar" id="h-cpu"></span></div>
-    <div class="row"><span>mem</span><span class="gbar" id="h-mem"></span></div>
-    <div class="row"><span>ble.signal</span><span class="gbar" id="h-sig"></span></div>
-    <div class="row"><span>status</span><span class="v" id="h-st">secure</span></div>
+    <div class="hl"><span>[ ble.scanner ]</span><b id="h-up">00:00:00</b></div>
+    <div class="row"><span>peer</span><span class="v" id="h-dev">scanning…</span></div>
+    <div class="row"><span>rssi</span><span class="gbar" id="h-rssi"></span></div>
+    <div class="row"><span>gatt.sync</span><span class="gbar" id="h-gatt"></span></div>
+    <div class="row"><span>link</span><span class="v" id="h-st">advertising</span></div>
   </div>
 
   <nav>
@@ -674,6 +766,14 @@
         </div>
         <div class="body"><div id="boot" class="out"></div></div>
       </div>
+
+      <div class="stats">
+        <div class="stat"><div class="n">12+</div><div class="l">Years shipping iOS</div></div>
+        <div class="stat"><div class="n">6</div><div class="l">Companies · intern → lead</div></div>
+        <div class="stat"><div class="n">80%</div><div class="l">Test coverage driven</div></div>
+        <div class="stat"><div class="n">Global</div><div class="l">BLE SDKs in production</div></div>
+      </div>
+
       <a href="#about" class="scrollhint" aria-label="scroll down">scroll<span class="chev">▼</span></a>
     </div>
   </header>
@@ -699,18 +799,18 @@
       <div class="panel" style="margin-top:14px">
         <div class="stack-grid">
           <div class="scol">
-            <h4>core</h4>
-            <div class="bar-line"><span class="nm">Swift / SwiftUI</span><span class="meter"><i data-w="96"></i></span><span class="pct">96</span></div>
-            <div class="bar-line"><span class="nm">CoreBluetooth</span><span class="meter"><i data-w="94"></i></span><span class="pct">94</span></div>
-            <div class="bar-line"><span class="nm">UIKit</span><span class="meter"><i data-w="90"></i></span><span class="pct">90</span></div>
-            <div class="bar-line"><span class="nm">GATT / BLE</span><span class="meter"><i data-w="92"></i></span><span class="pct">92</span></div>
+            <h4>core · years in production</h4>
+            <div class="bar-line"><span class="nm">UIKit</span><span class="meter"><i data-w="100"></i></span><span class="pct">12y</span></div>
+            <div class="bar-line"><span class="nm">Swift / SwiftUI</span><span class="meter"><i data-w="83"></i></span><span class="pct">10y</span></div>
+            <div class="bar-line"><span class="nm">CoreBluetooth</span><span class="meter"><i data-w="42"></i></span><span class="pct">5y</span></div>
+            <div class="bar-line"><span class="nm">GATT / BLE</span><span class="meter"><i data-w="42"></i></span><span class="pct">5y</span></div>
           </div>
           <div class="scol">
-            <h4>systems &amp; tooling</h4>
-            <div class="bar-line"><span class="nm">Rust</span><span class="meter"><i data-w="74"></i></span><span class="pct">74</span></div>
-            <div class="bar-line"><span class="nm">Tauri / React</span><span class="meter"><i data-w="78"></i></span><span class="pct">78</span></div>
-            <div class="bar-line"><span class="nm">CI/CD · Fastlane</span><span class="meter"><i data-w="88"></i></span><span class="pct">88</span></div>
-            <div class="bar-line"><span class="nm">XCTest / TDD</span><span class="meter"><i data-w="86"></i></span><span class="pct">86</span></div>
+            <h4>systems &amp; tooling · years</h4>
+            <div class="bar-line"><span class="nm">CI/CD · Fastlane</span><span class="meter"><i data-w="58"></i></span><span class="pct">7y</span></div>
+            <div class="bar-line"><span class="nm">XCTest / TDD</span><span class="meter"><i data-w="58"></i></span><span class="pct">7y</span></div>
+            <div class="bar-line"><span class="nm">Rust</span><span class="meter"><i data-w="17"></i></span><span class="pct">2y</span></div>
+            <div class="bar-line"><span class="nm">Tauri / React</span><span class="meter"><i data-w="17"></i></span><span class="pct">2y</span></div>
           </div>
         </div>
         <div class="ptags" style="margin-top:16px">also: <span>Combine · Flutter · GraphQL · Firebase · WebSockets · MVVM · SonarQube · BLE Sniffers · whisper.cpp</span></div>
@@ -760,7 +860,6 @@
         <p class="body-txt"><span class="muted">[+]</span> BLE sniffing &amp; GATT profile analysis to debug and harden device communication.</p>
         <p class="body-txt"><span class="muted">[+]</span> Designed CoreBluetooth state machines resilient to flaky radios, disconnects, and race conditions.</p>
         <p class="body-txt"><span class="muted">[+]</span> Systems programming in Rust; on-device ML inference with whisper.cpp — no network round-trips.</p>
-        <div class="note">// add real security creds here when ready — CTF placements, bug bounties, CVEs, write-ups, or a security repo. send them and I'll wire them in.</div>
       </div>
     </div>
   </section>
@@ -868,6 +967,9 @@
       function typeNext() {
         if (li >= lines.length) {
           enableCLI();
+          // boot finished → reveal the proof stat band, then the BLE HUD a beat later
+          document.querySelector('.stats')?.classList.add('in');
+          document.getElementById('hud')?.classList.add('in');
           return;
         }
 
@@ -883,17 +985,17 @@
           div.textContent = full.slice(0, i);
           if (i <= full.length) {
             i++;
-            setTimeout(step, L.t.length > 40 ? 26 : 46);
+            setTimeout(step, L.t.length > 40 ? 10 : 18);
           } else {
             li++;
-            if (L.trigger) { triggerFigure(); setTimeout(typeNext, 1000); }
-            else setTimeout(typeNext, L.t ? 320 : 120);
+            if (L.trigger) { triggerFigure(); setTimeout(typeNext, 500); }
+            else setTimeout(typeNext, L.t ? 140 : 60);
           }
         })();
       }
 
       boot.innerHTML = '<div><span class="cursor"></span></div>';
-      setTimeout(function () { boot.innerHTML = ''; typeNext(); }, 1200);
+      setTimeout(function () { boot.innerHTML = ''; typeNext(); }, 500);
 
       /* ===== interactive console ===== */
       const PROMPT = "rakesh@matrix:<b>~</b>$ ";
@@ -925,7 +1027,7 @@
           "connecting hearing aids to the world. My work lives at the low level — CoreBluetooth state machines, " +
           "GATT profiles, and reverse-engineering proprietary device protocols.",
         skills: () =>
-          "<span class='h'>core</span>     Swift / SwiftUI · CoreBluetooth · GATT/BLE · UIKit\n" +
+          "<span class='h'>core</span>     UIKit 12y · Swift/SwiftUI 10y · CoreBluetooth 5y · GATT/BLE 5y\n" +
           "<span class='h'>systems</span>  Rust · Tauri · whisper.cpp\n" +
           "<span class='h'>tooling</span>  CI/CD · Fastlane · XCTest · SonarQube",
         projects: () =>
@@ -1067,12 +1169,18 @@
       function decrypt(el) {
         const final = el.dataset.txt || el.textContent;
         el.dataset.txt = final;
+        if (reduce) { el.textContent = final; return; }
         const q = final.split('').map((c, i) => {
           const s = i * 1.3 + Math.random() * 6;
           return { c, s: s, e: s + 8 };
         });
         let f = 0;
+        const t0 = performance.now();
+        // hard deadline: rAF can be throttled/starved (busy main thread, bg tab),
+        // which used to leave headings frozen mid-scramble. Always snap to final.
+        const snap = setTimeout(() => { el.textContent = final; }, 1800);
         (function tick() {
+          if (performance.now() - t0 > 1600) { clearTimeout(snap); el.textContent = final; return; }
           let out = '', done = 0;
           for (const item of q) {
             if (item.c === ' ') { out += ' '; done++; continue; }
@@ -1082,7 +1190,7 @@
           }
           el.textContent = out;
           if (done < q.length) { f++; requestAnimationFrame(tick); }
-          else el.textContent = final;
+          else { clearTimeout(snap); el.textContent = final; }
         })();
       }
 
@@ -1099,12 +1207,16 @@
       }, { threshold: .12 });
       document.querySelectorAll('.rv').forEach(el => io.observe(el));
 
-      /* ===== Ambient telemetry HUD ===== */
+      /* ===== Ambient BLE-scanner HUD =====
+         Domain-relevant readout instead of fake CPU/mem: simulates a Bluetooth
+         Low Energy scan — discovering a peer, RSSI drifting, a GATT handshake
+         filling, then settling on a connected link. Mirrors what Rakesh's SDKs
+         actually do. */
       const t0 = Date.now();
       const up = document.getElementById('h-up');
-      const cpuEl = document.getElementById('h-cpu'),
-            memEl = document.getElementById('h-mem'),
-            sigEl = document.getElementById('h-sig'),
+      const devEl = document.getElementById('h-dev'),
+            rssiEl = document.getElementById('h-rssi'),
+            gattEl = document.getElementById('h-gatt'),
             stEl = document.getElementById('h-st');
 
       function bars(pct) {
@@ -1114,13 +1226,6 @@
         return s + ' ' + Math.round(pct) + '%';
       }
 
-      function dots(n) {
-        let s = '';
-        for (let i = 0; i < 4; i++) s += i < n ? '●' : '<span class="off">○</span>';
-        return s;
-      }
-
-      let cpu = 38, mem = 44;
       function pad(n) { return String(n).padStart(2, '0'); }
 
       setInterval(() => {
@@ -1128,27 +1233,42 @@
         up.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
       }, 1000);
 
-      setInterval(() => {
-        cpu = Math.max(12, Math.min(94, cpu + (Math.random() * 24 - 12)));
-        mem = Math.max(20, Math.min(88, mem + (Math.random() * 14 - 7)));
-        cpuEl.innerHTML = bars(cpu);
-        memEl.innerHTML = bars(mem);
-        sigEl.innerHTML = dots(2 + Math.floor(Math.random() * 3));
-        if (cpu > 85) { stEl.textContent = 'under load'; stEl.style.color = '#ffbd2e'; }
-        else { stEl.textContent = 'secure'; stEl.style.color = ''; }
-      }, 1500);
+      // discoverable BLE peripherals (hearing-aid style identifiers)
+      const PEERS = ['HA-L · 0x4F2A', 'HA-R · 0x4F2B', 'Pulse·LE 7', 'Signia-X', 'ReSound 0x12', 'Oticon·BLE'];
+      let rssi = 62;      // shown as -dBm; lower number = stronger
+      let gatt = 0;       // handshake progress 0..100
+      let phase = 0;      // 0 advertising, 1 pairing, 2 connected
 
-      /* ===== Glitch pulse ===== */
-      const pulse = document.getElementById('pulse');
-      function scheduleGlitch() {
-        const wait = 5000 + Math.random() * 8000;
-        setTimeout(() => {
-          pulse.classList.add('fire');
-          setTimeout(() => pulse.classList.remove('fire'), 360);
-          scheduleGlitch();
-        }, wait);
+      function cycle() {
+        if (phase === 0) {                       // advertising → discover a peer
+          devEl.textContent = PEERS[Math.floor(Math.random() * PEERS.length)];
+          stEl.textContent = 'pairing'; stEl.style.color = '#ffbd2e';
+          phase = 1; gatt = 0;
+        } else if (phase === 1) {                // pairing → GATT handshake fills
+          gatt = Math.min(100, gatt + 18 + Math.random() * 20);
+          if (gatt >= 100) { stEl.textContent = 'connected'; stEl.style.color = ''; phase = 2; }
+        } else {                                 // connected → hold, then re-scan
+          if (Math.random() > 0.78) {
+            phase = 0; devEl.textContent = 'scanning…';
+            stEl.textContent = 'advertising'; stEl.style.color = '';
+          }
+        }
+        // RSSI drifts; weaker (more negative) while pairing, strong once linked
+        const floor = phase === 2 ? 40 : 70;
+        rssi = Math.max(38, Math.min(90, rssi + (Math.random() * 14 - 7)));
+        rssi = Math.max(rssi, floor - 6);
+        const strengthPct = Math.round(((90 - rssi) / (90 - 38)) * 100);
+        rssiEl.innerHTML = bars(strengthPct).replace(/\d+%$/, '-' + Math.round(rssi) + 'dBm');
+        gattEl.innerHTML = bars(gatt);
       }
-      scheduleGlitch();
+      cycle();
+      setInterval(cycle, 1500);
+
+      /* ===== Glitch pulse =====
+         Restraint: no constant ambient strobe. The pulse now fires ONLY on a
+         fast scroll flick (see scroll-velocity handler below), so the effect
+         feels intentional rather than decorative. */
+      const pulse = document.getElementById('pulse');
 
       /* ===== Mouse-reactive hero (parallax tilt + depth + pointer glow) =====
          One rAF loop lerps toward the latest pointer target, so motion stays

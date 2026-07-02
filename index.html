@@ -980,12 +980,17 @@
         if (li === 1) stage(560, 200, 235);
 
         const full = L.p + L.t;
+        const cps = L.t.length > 40 ? 10 : 18;   // ms per char
+        const t0 = performance.now();
         let i = 0;
         (function step() {
+          // elapsed-based catch-up: background tabs clamp setTimeout to ~1s,
+          // so each tick types every char it owes instead of exactly one.
+          const owed = Math.floor((performance.now() - t0) / cps);
+          i = Math.min(full.length + 1, Math.max(i + 1, owed));
           div.textContent = full.slice(0, i);
           if (i <= full.length) {
-            i++;
-            setTimeout(step, L.t.length > 40 ? 10 : 18);
+            setTimeout(step, cps);
           } else {
             li++;
             if (L.trigger) { triggerFigure(); setTimeout(typeNext, 500); }
@@ -995,7 +1000,16 @@
       }
 
       boot.innerHTML = '<div><span class="cursor"></span></div>';
-      setTimeout(function () { boot.innerHTML = ''; typeNext(); }, 500);
+      // don't burn the boot sequence in a background tab (cmd-click from a
+      // feed): start it when the page is actually visible.
+      function startBoot() { boot.innerHTML = ''; typeNext(); }
+      if (document.hidden) {
+        document.addEventListener('visibilitychange', function h() {
+          if (!document.hidden) { document.removeEventListener('visibilitychange', h); setTimeout(startBoot, 300); }
+        });
+      } else {
+        setTimeout(startBoot, 500);
+      }
 
       /* ===== interactive console ===== */
       const PROMPT = "rakesh@matrix:<b>~</b>$ ";

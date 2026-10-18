@@ -747,6 +747,7 @@
         <a href="#about">about</a>
         <a href="#stack">stack</a>
         <a href="#projects">projects</a>
+        <a href="#side">after-hours</a>
         <a href="#research">research</a>
         <a href="#work">experience</a>
         <a href="#contact">contact</a>
@@ -786,7 +787,7 @@
       <div class="panel" style="margin-top:14px">
         <p class="body-txt">I've spent <span class="accent">12+ years</span> building iOS applications that people actually depend on — from enterprise mobility at Deloitte to cross-platform fintech at hedgehog lab to, now, Bluetooth SDKs that connect hearing aids to the world.</p>
         <p class="body-txt">My work lives at the <span class="accent">low level</span> — CoreBluetooth state machines, GATT profiles, reverse-engineering proprietary device protocols, and squeezing reliability out of radios that don't want to cooperate. Every line of code I write helps someone hear better.</p>
-        <p class="body-txt">Off the clock I'm building <span class="accent">OmWhisper</span> — a macOS voice-transcription app powered by fully on-device AI (whisper.cpp), built from scratch in Rust + Tauri. No cloud. No telemetry. I don't just explore new tech — I ship it.</p>
+        <p class="body-txt">Off the clock I ship <span class="accent">native Mac apps</span> — OmWhisper (on-device dictation), KlinkMac, WeekMark, and now Dayfold — plus web projects like GitObservatory and Clean Crumb. I don't just explore new tech — I ship it.</p>
       </div>
     </div>
   </section>
@@ -810,10 +811,10 @@
             <div class="bar-line"><span class="nm">CI/CD · Fastlane</span><span class="meter"><i data-w="58"></i></span><span class="pct">7y</span></div>
             <div class="bar-line"><span class="nm">XCTest / TDD</span><span class="meter"><i data-w="58"></i></span><span class="pct">7y</span></div>
             <div class="bar-line"><span class="nm">Rust</span><span class="meter"><i data-w="17"></i></span><span class="pct">2y</span></div>
-            <div class="bar-line"><span class="nm">Tauri / React</span><span class="meter"><i data-w="17"></i></span><span class="pct">2y</span></div>
+            <div class="bar-line"><span class="nm">React / TypeScript</span><span class="meter"><i data-w="17"></i></span><span class="pct">2y</span></div>
           </div>
         </div>
-        <div class="ptags" style="margin-top:16px">also: <span>Combine · Flutter · GraphQL · Firebase · WebSockets · MVVM · SonarQube · BLE Sniffers · whisper.cpp</span></div>
+        <div class="ptags" style="margin-top:16px">also: <span>Combine · Flutter · GraphQL · Firebase · WebSockets · MVVM · SonarQube · BLE Sniffers · CoreML · WhisperKit</span></div>
       </div>
     </div>
   </section>
@@ -825,12 +826,6 @@
       <h2>// projects</h2>
 
       <div class="proj" style="margin-top:16px">
-        <div class="proj-h"><span class="fn">omwhisper.app</span><span class="st">shipping · personal</span></div>
-        <p>macOS voice-transcription powered by on-device AI (whisper.cpp). Fast, private, fully offline — built from scratch to go deep on systems programming and local ML.</p>
-        <div class="ptags">stack: <span>Rust · Tauri · React · whisper.cpp</span> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma" target="_blank" rel="noopener">github ↗</a></div>
-      </div>
-
-      <div class="proj">
         <div class="proj-h"><span class="fn">ble-sdk.framework</span><span class="st">production · global</span></div>
         <p>BLE-based iOS SDKs enabling communication with proprietary hearing-aid hardware. Modular, scalable, and optimized CoreBluetooth interactions for stable, secure connectivity at global scale.</p>
         <div class="ptags">stack: <span>Swift · CoreBluetooth · GATT · XCTest · Fastlane</span></div>
@@ -850,6 +845,46 @@
     </div>
   </section>
 
+  <!-- AFTER HOURS -->
+  <section class="blk" id="side">
+    <div class="wrap rv">
+      <div class="cmd">ls -la <b>~/after-hours</b></div>
+      <h2>// after hours</h2>
+      <p class="body-txt" style="margin-top:14px"><span class="muted">#</span> Built in my free time, for the joy of it — free to use, no revenue, mostly open source.</p>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">omwhisper.app</span><span class="st">free · macOS</span></div>
+        <p>Menu-bar dictation for macOS — hold a key, speak, and the text lands where you're typing. On-device transcription by default, cloud engines only with your own key. Rebuilt as a pure native app.</p>
+        <div class="ptags">stack: <span>Swift · SwiftUI · AppKit · CoreML · WhisperKit</span> &nbsp;·&nbsp; <a class="live" href="https://www.omwhisper.in" target="_blank" rel="noopener">site ↗</a> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma/omwhisper-native" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">gitobservatory</span><span class="st">free · web</span></div>
+        <p>GitHub trending reimagined as a night sky — the brightest, fastest-rising repos charted as stars, ranked by stars/day, back to 2008.</p>
+        <div class="ptags">stack: <span>React · Vite · Framer Motion · GitHub API</span> &nbsp;·&nbsp; <a class="live" href="https://www.gitobservatory.com/" target="_blank" rel="noopener">site ↗</a> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma/observatory-github-sky" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">klinkmac</span><span class="st">free · open source</span></div>
+        <p>Ultra-low-latency mechanical keyboard sound emulation for macOS. Sub-10ms end-to-end, 15 sound packs, velocity-aware dynamics, no-alloc real-time audio path.</p>
+        <div class="ptags">stack: <span>Swift · SwiftUI · Core Audio</span> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma/klinkmac" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">weekmark</span><span class="st">free · macOS</span></div>
+        <p>Any calendar week, one keystroke away. A macOS widget + CW lookup for teams that plan in ISO calendar weeks.</p>
+        <div class="ptags">stack: <span>Swift · SwiftUI · WidgetKit</span> &nbsp;·&nbsp; <a class="live" href="https://rockykusuma.github.io/weekmark/" target="_blank" rel="noopener">site ↗</a> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma/weekmark" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">cleancrumb</span><span class="st">free · pro bono</span></div>
+        <p>Storefront for a home bakery — order-to-bake catalog, Google sign-in, Razorpay checkout, admin dashboard, and email order alerts.</p>
+        <div class="ptags">stack: <span>React · TypeScript · Tailwind · Supabase · Razorpay</span> &nbsp;·&nbsp; <a class="live" href="https://cleancrumb.co.in" target="_blank" rel="noopener">site ↗</a></div>
+      </div>
+      <div class="proj">
+        <div class="proj-h"><span class="fn">dayfold</span><span class="st">in progress · open source</span></div>
+        <p>A daily log for people who get asked for things all day — timestamped capture, an evening review, and open items folded into tomorrow. Synced via iCloud, no server.</p>
+        <div class="ptags">stack: <span>Swift · SwiftUI · SwiftData · CloudKit</span> &nbsp;·&nbsp; <a class="live" href="https://github.com/rockykusuma/dayfold" target="_blank" rel="noopener">github ↗</a></div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- RESEARCH / LOW-LEVEL -->
   <section class="blk" id="research">
     <div class="wrap rv">
@@ -859,7 +894,7 @@
         <p class="body-txt"><span class="muted">[+]</span> Reverse-engineered proprietary BLE protocols to drive hearing-aid connectivity across global apps.</p>
         <p class="body-txt"><span class="muted">[+]</span> BLE sniffing &amp; GATT profile analysis to debug and harden device communication.</p>
         <p class="body-txt"><span class="muted">[+]</span> Designed CoreBluetooth state machines resilient to flaky radios, disconnects, and race conditions.</p>
-        <p class="body-txt"><span class="muted">[+]</span> Systems programming in Rust; on-device ML inference with whisper.cpp — no network round-trips.</p>
+        <p class="body-txt"><span class="muted">[+]</span> On-device ML on Apple Silicon (CoreML, WhisperKit, Parakeet) and real-time audio with sub-10ms render paths — no network round-trips.</p>
       </div>
     </div>
   </section>
@@ -1028,7 +1063,8 @@
           "<span class='h'>available commands</span>\n" +
           "  <span class='h'>about</span>       who I am\n" +
           "  <span class='h'>skills</span>      my stack\n" +
-          "  <span class='h'>projects</span>    what I've built\n" +
+          "  <span class='h'>projects</span>    what I've built at work\n" +
+          "  <span class='h'>side</span>        after-hours builds\n" +
           "  <span class='h'>research</span>    low-level &amp; reverse engineering\n" +
           "  <span class='h'>experience</span>  career log\n" +
           "  <span class='h'>contact</span>     how to reach me\n" +
@@ -1041,18 +1077,24 @@
           "GATT profiles, and reverse-engineering proprietary device protocols.",
         skills: () =>
           "<span class='h'>core</span>     UIKit 12y · Swift/SwiftUI 10y · CoreBluetooth 5y · GATT/BLE 5y\n" +
-          "<span class='h'>systems</span>  Rust · Tauri · whisper.cpp\n" +
+          "<span class='h'>systems</span>  Rust · CoreML · WhisperKit · React/TS\n" +
           "<span class='h'>tooling</span>  CI/CD · Fastlane · XCTest · SonarQube",
         projects: () =>
-          "<span class='h'>omwhisper.app</span>         on-device macOS transcription · Rust/Tauri · <a href='https://github.com/rockykusuma' target='_blank' rel='noopener'>github ↗</a>\n" +
           "<span class='h'>ble-sdk.framework</span>     hearing-aid BLE SDKs · Swift/CoreBluetooth\n" +
           "<span class='h'>herc-rentals.ipa</span>      BLE access app · Deloitte\n" +
           "<span class='h'>enterprise-sales.ipad</span> iPad sales app · Concentrix",
+        side: () =>
+          "<span class='h'>omwhisper.app         </span>native macOS dictation · Swift/CoreML · <a href='https://www.omwhisper.in' target='_blank' rel='noopener'>↗</a>\n" +
+          "<span class='h'>gitobservatory        </span>GitHub trending as a night sky · React · <a href='https://www.gitobservatory.com/' target='_blank' rel='noopener'>↗</a>\n" +
+          "<span class='h'>klinkmac              </span>sub-10ms keyboard sounds · Swift · <a href='https://github.com/rockykusuma/klinkmac' target='_blank' rel='noopener'>↗</a>\n" +
+          "<span class='h'>weekmark              </span>calendar-week widget · Swift · <a href='https://rockykusuma.github.io/weekmark/' target='_blank' rel='noopener'>↗</a>\n" +
+          "<span class='h'>cleancrumb            </span>bakery storefront · React/Supabase · <a href='https://cleancrumb.co.in' target='_blank' rel='noopener'>↗</a>\n" +
+          "<span class='h'>dayfold               </span>daily log, in progress · SwiftData · <a href='https://github.com/rockykusuma/dayfold' target='_blank' rel='noopener'>↗</a>",
         research: () =>
           "[+] reverse-engineered proprietary BLE protocols for global hearing-aid apps\n" +
           "[+] BLE sniffing &amp; GATT profile analysis to harden device comms\n" +
           "[+] CoreBluetooth state machines resilient to flaky radios &amp; races\n" +
-          "[+] systems programming in Rust; on-device ML with whisper.cpp",
+          "[+] on-device ML on Apple Silicon; sub-10ms real-time audio",
         experience: () =>
           "<span class='h'>WS Audiology</span>   lead engineer       2023 — now\n" +
           "<span class='h'>hedgehog lab</span>   senior iOS dev      2022 — 23\n" +
@@ -1063,10 +1105,11 @@
           "github    <a href='https://github.com/rockykusuma' target='_blank' rel='noopener'>github.com/rockykusuma</a>\n" +
           "linkedin  <a href='https://www.linkedin.com/in/rakeshkusuma' target='_blank' rel='noopener'>linkedin.com/in/rakeshkusuma</a>",
         whoami: () => "rakesh kusuma — lead engineer @ ws audiology",
-        ls: () => "about  stack  projects  research  experience  contact"
+        ls: () => "about  stack  projects  side  research  experience  contact"
       };
       CMDS.stack = CMDS.skills;
       CMDS.work = CMDS.experience;
+      CMDS['after-hours'] = CMDS.side;
 
       function run(raw) {
         const cmd = raw.toLowerCase().replace(/\s+/g, ' ').trim();
